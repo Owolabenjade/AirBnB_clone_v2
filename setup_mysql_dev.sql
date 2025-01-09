@@ -1,20 +1,41 @@
---   Creates a MySQL server with:
---   Database hbnb_dev_db.
---   User hbnb_dev with password hbnb_dev_pwd in localhost.
---   Grants all privileges for hbnb_dev on hbnb_dev_db.
---   Grants SELECT privilege for hbnb_dev on performance.
-
--- Create the database if it doesn't exist
+-- Creates database and user for development
+-- Create database
 CREATE DATABASE IF NOT EXISTS hbnb_dev_db;
 
--- Create the user if it doesn't exist
+-- Create user if not exists
 CREATE USER IF NOT EXISTS 'hbnb_dev'@'localhost' IDENTIFIED BY 'hbnb_dev_pwd';
 
--- Grant all privileges on hbnb_dev_db to hbnb_dev
+-- Grant privileges to database
 GRANT ALL PRIVILEGES ON hbnb_dev_db.* TO 'hbnb_dev'@'localhost';
 
--- Grant SELECT privilege on performance_schema to hbnb_dev
+-- Grant select privilege on performance_schema
 GRANT SELECT ON performance_schema.* TO 'hbnb_dev'@'localhost';
+
+-- Create tables
+USE hbnb_dev_db;
+
+-- States table
+CREATE TABLE IF NOT EXISTS states (
+    id VARCHAR(60) NOT NULL PRIMARY KEY,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    name VARCHAR(128) NOT NULL
+);
+
+-- Cities table
+CREATE TABLE IF NOT EXISTS cities (
+    id VARCHAR(60) NOT NULL PRIMARY KEY,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    state_id VARCHAR(60) NOT NULL,
+    name VARCHAR(128) NOT NULL,
+    FOREIGN KEY (state_id) REFERENCES states(id) ON DELETE CASCADE
+);
+
+-- Ensure proper character set and collation
+ALTER DATABASE hbnb_dev_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+ALTER TABLE states CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+ALTER TABLE cities CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Flush privileges to apply changes
 FLUSH PRIVILEGES;
