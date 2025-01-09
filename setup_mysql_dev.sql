@@ -1,5 +1,8 @@
--- Creates database and user for development
--- Create database
+-- Creates the MySQL server with specified configurations
+-- Database: hbnb_dev_db
+-- User: hbnb_dev with password hbnb_dev_pwd
+
+-- Create database if not exists
 CREATE DATABASE IF NOT EXISTS hbnb_dev_db;
 
 -- Create user if not exists
@@ -11,10 +14,9 @@ GRANT ALL PRIVILEGES ON hbnb_dev_db.* TO 'hbnb_dev'@'localhost';
 -- Grant select privilege on performance_schema
 GRANT SELECT ON performance_schema.* TO 'hbnb_dev'@'localhost';
 
--- Create tables
 USE hbnb_dev_db;
 
--- States table
+-- Create tables
 CREATE TABLE IF NOT EXISTS states (
     id VARCHAR(60) NOT NULL PRIMARY KEY,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -22,7 +24,6 @@ CREATE TABLE IF NOT EXISTS states (
     name VARCHAR(128) NOT NULL
 );
 
--- Cities table
 CREATE TABLE IF NOT EXISTS cities (
     id VARCHAR(60) NOT NULL PRIMARY KEY,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

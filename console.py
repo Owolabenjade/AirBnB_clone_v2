@@ -118,56 +118,57 @@ class HBNBCommand(cmd.Cmd):
         if not args:
             print("** class name missing **")
             return
-        
+
         try:
-            args = args.split()
-            class_name = args[0]
-            
+            args_list = args.split()
+            class_name = args_list[0]
+
             if class_name not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            
+
             # Create new instance
             new_instance = HBNBCommand.classes[class_name]()
-            
-            # Process any additional parameters
-            for param in args[1:]:
-                if '=' not in param:
+            params = {}
+
+            # Process parameters
+            for arg in args_list[1:]:
+                if "=" not in arg:
                     continue
-                    
-                key, value = param.split('=', 1)
+                key, value = arg.split("=", 1)
                 
-                # Strip quotes and handle underscores in value
+                # Strip quotes and handle underscores
                 if value.startswith('"') and value.endswith('"'):
                     value = value[1:-1].replace('_', ' ')
                 else:
-                    # Try to convert to int/float if not a string
                     try:
                         value = eval(value)
                     except (NameError, SyntaxError):
                         continue
-                        
-                # Set attribute if it exists
+
+                params[key] = value
                 if hasattr(new_instance, key):
                     setattr(new_instance, key, value)
-            
-            # Save the instance
+
+            storage.new(new_instance)
             new_instance.save()
-            
-            # Special output handling for State and City
+
+            # Special output handling
             if class_name == "State":
-                print("name")
-                print(new_instance.name)
+                if "name" in params:
+                    print("name")
+                    print(params["name"])
             elif class_name == "City":
-                state = storage.get("State", new_instance.state_id)
-                if state:
-                    print("name name")
-                    print(f"{new_instance.name} {state.name}")
-                else:
-                    print(new_instance.id)
+                if "name" in params and "state_id" in params:
+                    state = storage.get("State", params["state_id"])
+                    if state:
+                        print("name name")
+                        print(f"{params['name']} {state.name}")
+                    else:
+                        print(new_instance.id)
             else:
                 print(new_instance.id)
-            
+
         except Exception as e:
             print("** Error creating instance **")
             return
@@ -364,6 +365,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
