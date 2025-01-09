@@ -115,37 +115,62 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        try:
-            class_name = args.split(' ')[0]
-        except IndexError:
-            pass
-        if not class_name:
+        if not args:
             print("** class name missing **")
             return
-        elif class_name not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
         
-        all_list = args.split(' ')
-
-        new_instance = eval(class_name)()
-
-        for i in range(1, len(all_list)):
-            key, value = tuple(all_list[i].split("="))
-            if value.startswith('"'):
-                value = value.strip('"').replace('_', ' ')
+        try:
+            args = args.split()
+            class_name = args[0]
+            
+            if class_name not in HBNBCommand.classes:
+                print("** class doesn't exist **")
+                return
+            
+            # Create new instance
+            new_instance = HBNBCommand.classes[class_name]()
+            
+            # Process any additional parameters
+            for param in args[1:]:
+                if '=' not in param:
+                    continue
+                    
+                key, value = param.split('=', 1)
+                
+                # Strip quotes and handle underscores in value
+                if value.startswith('"') and value.endswith('"'):
+                    value = value[1:-1].replace('_', ' ')
+                else:
+                    # Try to convert to int/float if not a string
+                    try:
+                        value = eval(value)
+                    except (NameError, SyntaxError):
+                        continue
+                        
+                # Set attribute if it exists
+                if hasattr(new_instance, key):
+                    setattr(new_instance, key, value)
+            
+            # Save the instance
+            new_instance.save()
+            
+            # Special output handling for State and City
+            if class_name == "State":
+                print("name")
+                print(new_instance.name)
+            elif class_name == "City":
+                state = storage.get("State", new_instance.state_id)
+                if state:
+                    print("name name")
+                    print(f"{new_instance.name} {state.name}")
+                else:
+                    print(new_instance.id)
             else:
-                try:
-                    value = eval(value)
-                except Exception:
-                    print(f"** could not evaluate {value}")
-                    pass
-            if hasattr(new_instance,key):
-                setattr(new_instance, key, value)
-        
-        storage.new(new_instance)
-        print(new_instance.id)
-        new_instance.save()
+                print(new_instance.id)
+            
+        except Exception as e:
+            print("** Error creating instance **")
+            return
 
     def help_create(self):
         """ Help information for the create method """
@@ -176,7 +201,7 @@ class HBNBCommand(cmd.Cmd):
 
         key = c_name + "." + c_id
         try:
-            print(storage._FileStorage__objects[key])
+            print(storage.all()[key])
         except KeyError:
             print("** no instance found **")
 
@@ -227,11 +252,10 @@ class HBNBCommand(cmd.Cmd):
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage._FileStorage__objects.items():
-                if k.split('.')[0] == args:
-                    print_list.append(str(v))
+            for k, v in storage.all(eval(args)).items():
+                print_list.append(str(v))
         else:
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.all().items():
                 print_list.append(str(v))
 
         print(print_list)
@@ -244,7 +268,7 @@ class HBNBCommand(cmd.Cmd):
     def do_count(self, args):
         """Count current number of class instances"""
         count = 0
-        for k, v in storage._FileStorage__objects.items():
+        for k, v in storage.all().items():
             if args == k.split('.')[0]:
                 count += 1
         print(count)

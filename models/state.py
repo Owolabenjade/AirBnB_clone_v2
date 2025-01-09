@@ -10,11 +10,14 @@ from sqlalchemy.orm import relationship
 
 
 class State(BaseModel, Base):
-    """Representation of state """
+    """Representation of state"""
     if models.storage_t == "db":
         __tablename__ = 'states'
         name = Column(String(128), nullable=False)
-        cities = relationship("City", backref="state")
+        cities = relationship("City", 
+                            backref="state", 
+                            cascade="all, delete-orphan",
+                            passive_deletes=True)
     else:
         name = ""
 
@@ -32,3 +35,7 @@ class State(BaseModel, Base):
                 if city.state_id == self.id:
                     city_list.append(city)
             return city_list
+
+    def __str__(self):
+        """String representation of the State instance"""
+        return "[State] ({}) {}".format(self.id, self.__dict__)
