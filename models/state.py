@@ -1,41 +1,32 @@
 #!/usr/bin/python3
-""" holds class State"""
-import models
+"""
+State model for AirBnB system
+"""
 from models.base_model import BaseModel, Base
 from models.city import City
-from os import getenv
-import sqlalchemy
-from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
 
-
 class State(BaseModel, Base):
-    """Representation of state"""
-    if models.storage_t == "db":
-        __tablename__ = 'states'
-        name = Column(String(128), nullable=False)
-        cities = relationship("City", 
-                            backref="state", 
-                            cascade="all, delete-orphan",
-                            passive_deletes=True)
-    else:
-        name = ""
+    """
+    State class represents a state in the AirBnB system
+    """
+    __tablename__ = 'states'
+
+    name = Column(String(128), nullable=False)
+    cities = relationship("City", backref="state", cascade="all, delete")
 
     def __init__(self, *args, **kwargs):
-        """initializes state"""
+        """
+        Initializes a State object
+        """
         super().__init__(*args, **kwargs)
 
-    if models.storage_t != "db":
-        @property
-        def cities(self):
-            """getter for list of city instances related to the state"""
-            city_list = []
-            all_cities = models.storage.all(City)
-            for city in all_cities.values():
-                if city.state_id == self.id:
-                    city_list.append(city)
-            return city_list
-
-    def __str__(self):
-        """String representation of the State instance"""
-        return "[State] ({}) {}".format(self.id, self.__dict__)
+    @property
+    def cities(self):
+        """
+        Returns the list of City objects related to the current State
+        """
+        from models import storage
+        if storage.get("HBNB_TYPE_STORAGE") == "db":
+            return self.__session.query(City).filter(City.state_id == self.id).all()
+        return [city for city in storage.all(City).values() if city.state_id == self.id]
