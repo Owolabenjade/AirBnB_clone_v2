@@ -79,5 +79,10 @@ class DBStorage:
         self.__session = Session()
 
     def close(self):
-        """Close the current database session"""
+        """
+        Close the current database session and create a new one
+        """
+        self.__session.close()
         self.__session.remove()
+        self.__session = None  # Clear the session
+        self.reload()  # Create a new session

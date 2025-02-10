@@ -22,11 +22,12 @@ class State(BaseModel, Base):
         @property
         def cities(self):
             """
-            Getter method for cities when using FileStorage
             Returns list of City objects linked to the current State
+            for FileStorage
             """
-            city_list = []
+            from models.city import City
+            cities_list = []
             for city in models.storage.all(City).values():
                 if city.state_id == self.id:
-                    city_list.append(city)
-            return city_list
+                    cities_list.append(city)
+            return sorted(cities_list, key=lambda city: city.id)
