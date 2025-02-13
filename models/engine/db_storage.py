@@ -70,10 +70,10 @@ class DBStorage:
         Session = scoped_session(session_factory)
         self.__session = Session()
 
-def close(self):
-    """Dispose of the current Session and create a new one."""
-    if self.__session:
-        self.__session.close()
-        self.__session.remove()
-        self.__session = None
-    self.reload()
+    def close(self):
+        """Dispose of the current Session and create a new one."""
+        if self.__session:
+            self.__session.close()
+            self.__session.remove()
+            self.__session = None
+        self.reload()
