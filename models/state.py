@@ -11,20 +11,16 @@ from sqlalchemy.orm import relationship
 
 
 class State(BaseModel, Base):
-    """
-    State class for representing states in HBNB
-    """
+    """State class for representing states in HBNB"""
     __tablename__ = 'states'
     name = Column(String(128), nullable=False)
-    cities = relationship("City", backref="state", cascade="all, delete-orphan")
+    cities = relationship("City", backref="state", 
+                         cascade="all, delete-orphan")
 
     if getenv('HBNB_TYPE_STORAGE') != 'db':
         @property
         def cities(self):
-            """
-            Returns list of City objects linked to the current State
-            for FileStorage
-            """
+            """Returns list of City objects linked to the State for FileStorage"""
             from models.city import City
             cities_list = []
             for city in models.storage.all(City).values():

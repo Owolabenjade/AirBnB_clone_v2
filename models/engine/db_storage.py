@@ -27,10 +27,10 @@ class DBStorage:
         pwd = getenv('HBNB_MYSQL_PWD')
         host = getenv('HBNB_MYSQL_HOST')
         db = getenv('HBNB_MYSQL_DB')
-        
+
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(
-            user, pwd, host, db), pool_pre_ping=True)
-            
+                                    user, pwd, host, db), pool_pre_ping=True)
+
         if getenv('HBNB_ENV') == 'test':
             Base.metadata.drop_all(self.__engine)
 
@@ -79,10 +79,9 @@ class DBStorage:
         self.__session = Session()
 
     def close(self):
-        """
-        Close the current database session and create a new one
-        """
-        self.__session.close()
-        self.__session.remove()
-        self.__session = None  # Clear the session
-        self.reload()  # Create a new session
+        """Close the current database session and create a new one"""
+        if self.__session:
+            self.__session.close()
+            Session.remove()
+            self.__session = None
+            self.reload()
