@@ -74,5 +74,6 @@ def close(self):
     """Dispose of the current Session and create a new one."""
     if self.__session:
         self.__session.close()
-        Session.remove()  # Remove the session from the registry
-    self.reload()  # Create a new session
+        self.__session.remove()
+        self.__session = None
+    self.reload()
